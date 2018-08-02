@@ -20,6 +20,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.ViewHolder
     private Context context;
     private FirebaseFirestore mFirestore;
 
+    /** Конструктор с параметрами - список объектов меток, контекст приложения, ссылка на Firestore */
     public TicketAdapter(List<Ticket> tagList, Context context, FirebaseFirestore mFirestore) {
         this.tagList = tagList;
         this.context = context;
@@ -33,6 +34,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.ViewHolder
         return new ViewHolder(view);
     }
 
+    /** Метод - связывание полей макета с конкретными значениями объекта */
     @Override
     public void onBindViewHolder(@NonNull TicketAdapter.ViewHolder holder, int position) {
         Ticket ticket = tagList.get(position);
@@ -64,6 +66,7 @@ public class TicketAdapter extends RecyclerView.Adapter<TicketAdapter.ViewHolder
         }
     }
 
+    /** Метод - преобразование времени из миллисекунд в указанные формат */
     private String converteTime(String value) {
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         long temp = Long.parseLong(value);

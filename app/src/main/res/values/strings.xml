@@ -5,10 +5,8 @@
     <string name="title_nfc" translatable="false">NFC</string>
     <string name="title_location">Location</string>
     <string name="title_internet">Internet</string>
-    <string name="title_server">Server</string>
     <string name="title_sort_menu">Sort</string>
 
-    <string name="test">Test</string>
     <string name="exit">Exit</string>
     <string name="default_text">Touch tag with the phone to read it</string>
 

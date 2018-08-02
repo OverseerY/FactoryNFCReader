@@ -25,7 +25,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -36,7 +35,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +42,6 @@ import android.widget.Toast;
 import com.github.javiersantos.appupdater.AppUpdater;
 import com.github.javiersantos.appupdater.enums.Display;
 import com.github.javiersantos.appupdater.enums.UpdateFrom;
-import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -55,10 +52,7 @@ import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -67,33 +61,47 @@ public class MainActivity extends AppCompatActivity {
 
     //#region Variables
 
+    /** Ссылка на базу данных Firestore */
     FirebaseFirestore mFirestore;
-
+    /** Управление службами получения местоположения */
     LocationManager locationManager;
+    /** Управление службой NFC */
     NfcManager nfcManager;
+    /** Адаптер NFC */
     NfcAdapter nfcAdapter;
-
+    /** Значок для отображения изменения статуса NFC-адаптера */
     ImageView imageNfc;
+    /** Значок для отображения изменения статуса адаптера местоположения */
     ImageView imageLocation;
+    /** Значок для отображения изменения статуса подключения к интернету */
     ImageView imageInternet;
+    /** Подпись значка статуса NFC */
     TextView labelNfc;
+    /** Подпись значка статуса местоположения */
     TextView labelLocation;
+    /** Подпись значка статуса подключения к интернету */
     TextView labelInternet;
 
+    /** Свойство - широта */
     private String curLatitude;
+    /** Свойство - долгота */
     private String curLongitude;
-
+    /** Свойство - флаг, доступен ли NFC */
     private boolean isNfcEnabled;
+    /** Свойство - флаг, доступен ли GPS */
     private boolean isGpsEnabled;
-    private boolean isInternetEnabled;
 
+    /** Меню навигации в нижней части окна приложения */
     BottomNavigationView navigation;
 
+    /** Свойство - интервал обновления координат местоположения */
     private static final int LOCATION_INTERVAL = 1000; // 1 sec
+    /** Свойство - точность определения местоположения */
     private static final float LOCATION_DISTANCE = 1f; // 1 meter
-
+    /** Свойство - значение для сравнения с результатом запроса разрешения на доступ к местоположению */
     private static final int PERMISSION_REQUEST_LOCATION = 0;
 
+    /** Свойство - массив технологий NFC потенциальных меток */
     private final String[][] techList = new String[][] {
             new String[] {
                     NfcA.class.getName(),
@@ -106,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
             }
     };
 
+    /** Реализация метода меню навигации */
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
@@ -126,18 +134,22 @@ public class MainActivity extends AppCompatActivity {
 
     //#region Get / Set
 
+    /** Метод - установка значения свойства Широта */
     public void setCurLatitude(String curLatitude) {
         this.curLatitude = curLatitude;
     }
 
+    /** Метод - установка значения свойства Долгота*/
     public void setCurLongitude(String curLongitude) {
         this.curLongitude = curLongitude;
     }
 
+    /** Метод - получение значения свойства Широта*/
     public String getCurLatitude() {
         return curLatitude;
     }
 
+    /** Метод - получение значения свойства Долгота*/
     public String getCurLongitude() {
         return curLongitude;
     }
@@ -146,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
     //#region Activity Methods
 
+    /** Метод жизненного цикла активности - вызывается при её создании */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //setTheme(R.style.AppCustomTheme);
@@ -181,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Метод жизненного цикла активности - вызывается при её создании */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -188,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /** Реализация меню в правом верхнем углу */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -201,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Обработка нажатия системной кнопки Назад */
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
@@ -210,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Метод жизненного цикла активности - вызывается после её создания сразу за методом onCreate */
     @Override
     protected void onStart() {
         super.onStart();
@@ -224,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
                 .start();
     }
 
+    /** Метод жизненного цикла активности - вызывается при продолжении после паузы */
     @Override
     protected void onResume() {
         super.onResume();
@@ -240,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /** Запрос разрешения на доступ к местоположению */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_LOCATION) {
@@ -257,6 +276,7 @@ public class MainActivity extends AppCompatActivity {
 
     //#region Initialization
 
+    /** инициализация службы NFC - возвращает логическое значение состояния подключения адаптера */
     private boolean initNFC() {
         nfcManager = (NfcManager) this.getSystemService(Context.NFC_SERVICE);
         boolean service_enabled = false;
@@ -271,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
         return service_enabled;
     }
 
+    /** инициализация службы местоположения - возвращает логическое значение состояния подключения GPS-провайдера */
     private boolean initGPS() {
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         boolean service_enabled = false;
@@ -284,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
         return service_enabled;
     }
 
+    /** Слушатель изменения местоположения */
     LocationListener locationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
@@ -306,6 +328,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    /** инициализация службы определения местоположения с запросом разрешения на доступ, если требуется */
     private void initLocationProvider() {
         Log.i("INITLP", "initializeLocationProvider");
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -332,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Ask user for geolocation permissions
+    /** Запрос разрешения на доступ к местоположению устройства у пользователя */
     private void requestLocationPermissions() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
             Snackbar.make(findViewById(android.R.id.content), "Permission granted", Snackbar.LENGTH_INDEFINITE).setAction("Ok", new View.OnClickListener() {
@@ -351,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
 
     //#region Check State
 
+    /** Метод - проверка состояния подключения NFC-адаптера с определённым интервалом */
     public void testNfcState() {
         Timer nfcTimer = new Timer();
         final Handler nfcHandler = new Handler();
@@ -376,6 +400,7 @@ public class MainActivity extends AppCompatActivity {
         }, 0L, 5L * 1000);
     }
 
+    /** Метод - проверка состояния подключения GPS-адаптера с определённым интервалом */
     public void testGpsState() {
         Timer gpsTimer = new Timer();
         final Handler gpsHandler = new Handler();
@@ -401,6 +426,7 @@ public class MainActivity extends AppCompatActivity {
         }, 0L, 2L * 1000);
     }
 
+    /** Метод - проверка состояния подключения к сети интернет с определённым интервалом */
     public void testInternetState() {
         Timer netTimer = new Timer();
         final Handler netHandler = new Handler();
@@ -411,10 +437,8 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     if (isURLReachable("http://google.com")) {
                         textColor = getResources().getColor(R.color.colorGreen);
-                        isInternetEnabled = true;
                     } else {
                         textColor = getResources().getColor(R.color.colorRed);
-                        isInternetEnabled = false;
                     }
                     netHandler.post(new Runnable() {
                         @Override
@@ -430,6 +454,8 @@ public class MainActivity extends AppCompatActivity {
         }, 0L, 2L * 1000);
     }
 
+    /** Проверка доступности определённого URL, передаваемого в качестве параметра.
+     * Возвращает логическое состояние доступности. */
     static public boolean isURLReachable(String url) {
         if (get(url) != null) {
             return true;
@@ -437,6 +463,9 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    /** Метод - реализация проверки доступности URL.
+     * Примечание: может вызвать сбой приложения при долгом ожидании ответа.
+     * Не реализован таймаут */
     static String get(String url) {
         OkHttpClient client = new OkHttpClient();
         Request req = new Request.Builder().url(url).get().build();
@@ -459,6 +488,7 @@ public class MainActivity extends AppCompatActivity {
 
     //#region NFC Listener
 
+    /** Метод - ключевой в данном приложении. Получение данных счтываемой метки от системы, обработка и сохранение*/
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -496,6 +526,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Метод - слушатель обнаружения метки при считывании через Отложенное намерение */
     private void listenForNfc() {
         try {
             PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(getApplicationContext(), getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
@@ -510,6 +541,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /** Метод - обработка данных, считанных с метки; получение уникального идентификатора метки */
     private String ByteArrayToHexString(byte [] inarray) {
         int i, j, in;
         String [] hex = {"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
@@ -525,6 +557,7 @@ public class MainActivity extends AppCompatActivity {
         return out;
     }
 
+    /** Метод - создание объекта и его упаковка для сохранения и отправки на сервер */
     private void createNewTicket(String id, String name, String lat, String lon, String time) {
         Map<String, Object> tagMap = new Ticket(id, name, lat, lon, time).toMap();
 
@@ -548,11 +581,13 @@ public class MainActivity extends AppCompatActivity {
 
     //#region Common Methods
 
+    /** Метод - получение системного времени в строковом формате в текущий момент времени */
     private String getCurTime() {
         long value = System.currentTimeMillis();
         return String.valueOf(value);
     }
 
+    /** Метод - создание информационного диалогового окна, закрывающегося автоматически через определённый промежуток времени */
     public void autoCloseDialog(String title, String message, int iconType) {
         AlertDialog.Builder builder = new AlertDialog.Builder(
                 MainActivity.this);
@@ -583,12 +618,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /** Метод - запуск и отображение фрагмента Меню сортировки */
     public void showSortDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         final TagsSortDialogFragment sortDialogFragment = new TagsSortDialogFragment();
         sortDialogFragment.show(fragmentManager, "dialog");
     }
 
+    /** Метод - запуск фрагмента с параметрами, от которых зависит какой фрагмент должен отобразиться */
     public void displayMainFragment(int id, int menuNumber) {
         MainFragment fragment = new MainFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -599,6 +636,7 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
+    /** Метод - задерка с определённым интервалом */
     public void delayBeforeInitState() {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {

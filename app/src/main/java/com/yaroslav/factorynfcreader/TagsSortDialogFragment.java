@@ -37,13 +37,17 @@ public class TagsSortDialogFragment extends DialogFragment{
     TextView startMillisec;
     TextView finishMillisec;
 
+    /** Календарь */
     Calendar calendar;
+    /** Свойство - хранит значение времени в миллисекундах, равное приблизительно 1 суткам */
     private static final long dateCorrection = 1000 * 60 * 60 * 24;
+    /** Свойство - принимает значение времени в миллисекундах в текущий момент времени */
     private static long todayDate = new Date().getTime();
 
+    /** Свойство - флаг, логическое значение типа сортировки - по возрастанию или по убыванию */
     private boolean isAscending;
-    private boolean isDefinedRange;
 
+    /** Метод - один из методов жизненного цикла фрагмента, инициализирует поля и методы сортировки */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -109,6 +113,7 @@ public class TagsSortDialogFragment extends DialogFragment{
         return view;
     }
 
+    /** Метод- создание диалогового окна с элементами управления для выбора настроек сортировки */
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -117,7 +122,8 @@ public class TagsSortDialogFragment extends DialogFragment{
         return dialog;
     }
 
-    /** order - name/date, orderType - asc/des, begin/end - dates in msec */
+    /** Метод - запуск фрагмента для отображения списка меток с установленными
+     * параметрами сортировки */
     private void sortedTags(int order, boolean orderType, String begin, String end) {
         MainFragment fragment = new MainFragment();
         FragmentTransaction ft;
@@ -133,6 +139,7 @@ public class TagsSortDialogFragment extends DialogFragment{
         ft.commit();
     }
 
+    /** Метод - установка даты в поля, переданные аргументами */
     private void setDate(final EditText editText, final TextView viewText) {
         DatePickerDialog dialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -149,24 +156,17 @@ public class TagsSortDialogFragment extends DialogFragment{
         dialog.show();
     }
 
+    /** Метод- получение времени в миллисекундах и отображение его в переданных
+     * в качестве аргументов полях */
     private void getDateInMilliseconds(EditText edit_field, TextView text) {
         long currentDateInMillisec = calendar.getTimeInMillis();
         String str = (DateUtils.formatDateTime(getContext(), currentDateInMillisec,DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR ));
         String msec = Long.toString(currentDateInMillisec);
-        //Toast.makeText(getContext(), "" + currentDateFromMillisec, Toast.LENGTH_SHORT).show();
         edit_field.setText(str);
         text.setText(msec);
     }
 
-    private String convertMillisecToDate(String msec) {
-        if (msec != "" && !msec.isEmpty()) {
-            long date_in_msec = Long.parseLong(msec);
-            return (DateUtils.formatDateTime(getContext(), date_in_msec, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
-        } else {
-            return "";
-        }
-    }
-
+    /** Метод - Стандартное значение календаря */
     public static Calendar setDefaultTime(Calendar calendar) {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);

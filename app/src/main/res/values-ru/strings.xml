@@ -4,9 +4,7 @@
     <string name="title_main">Дом</string>
     <string name="title_location">Локация</string>
     <string name="title_internet">Интернет</string>
-    <string name="title_server">Сервер</string>
     <string name="title_sort_menu">Сортировка</string>
-    <string name="test">Тест</string>
     <string name="exit">Выход</string>
     <string name="default_text">Приложите телефон к метке, чтобы считать её</string>
     <string name="cancel">Отмена</string>

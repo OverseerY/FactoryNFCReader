@@ -4,16 +4,7 @@
     <color name="colorPrimaryDark">#000a12</color>
     <color name="colorAccent">#4f5b62</color>
 
-    <color name="colorIndigoPrimary">#7986cb</color>
-    <color name="colorIndigoPrimaryDark">#49599a</color>
-    <color name="colorIndigoPrimaryLight">#aab6fe</color>
-
-    <color name="colorDeepOrangeAccent">#ff7043</color>
-    <color name="colorDeepOrangeAccentDark">#c63f17</color>
-    <color name="colorDeepOrangeAccentLight">#ffa270</color>
-
     <color name="colorYellowTypeOne">#f9a825</color>
-    <color name="colorYellowTypeTwo">#ffb300</color>
     <color name="colorBlueTypeOne">#2196f3</color>
     <color name="colorForBackground">#cfd8dc</color>
     <color name="colorRed">#e53935</color>
