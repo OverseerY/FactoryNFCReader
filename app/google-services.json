@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "209868242291",
+    "firebase_url": "https://nfc-reader-1a8cd.firebaseio.com",
+    "project_id": "nfc-reader-1a8cd",
+    "storage_bucket": "nfc-reader-1a8cd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209868242291:android:413bf761a79846f4",
+        "android_client_info": {
+          "package_name": "com.yaroslav.factorynfcreader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209868242291-jb6bveu5rqkb3usuglkt4ki31vd5ko4i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_Npvdsx8nfSysYB1VzMjORizEpUeyqOo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

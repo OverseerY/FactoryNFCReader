@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/tsdBegin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="date"
+                android:hint="@string/begin"
+                android:focusable="false"
+                android:textColor="@color/colorIndigoPrimaryDark"
+                android:layout_weight="1"/>
+
+            <EditText
+                android:id="@+id/tsdEnd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="date"
+                android:hint="@string/end"
+                android:focusable="false"
+                android:textColor="@color/colorIndigoPrimaryDark"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/tsdBeginMillisec"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/tsdEndMillisec"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="invisible"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:textColor="@color/colorIndigoPrimaryDark"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/order_by"/>
+
+            <Spinner
+                android:id="@+id/tsdOrderBy"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"/>
+
+        </LinearLayout>
+
+        <RadioGroup
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/ascending"
+                android:src="@drawable/ic_ascending"/>
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/tsdAscending"
+                android:layout_gravity="center_vertical"
+                android:layout_width="50dp"
+                android:checked="true"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/descending"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_descending"/>
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/tsdDescending"
+                android:layout_gravity="center_vertical"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content" />
+
+        </RadioGroup>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/tsdCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:text="@string/cancel"/>
+
+            <Button
+                android:id="@+id/tsdOk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                android:text="@string/ok"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

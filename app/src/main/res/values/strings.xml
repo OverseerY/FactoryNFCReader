@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name" translatable="false">NFC Reader</string>
+    <string name="title_history">History</string>
+    <string name="title_main">Home</string>
+    <string name="title_nfc" translatable="false">NFC</string>
+    <string name="title_location">Location</string>
+    <string name="title_internet">Internet</string>
+    <string name="title_server">Server</string>
+    <string name="title_sort_menu">Sort</string>
+
+    <string name="test">Test</string>
+    <string name="exit">Exit</string>
+    <string name="default_text">Touch tag with the phone to read it</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="ok" translatable="false">OK</string>
+    <string name="begin">Begin</string>
+    <string name="end">End</string>
+    <string name="order_by">Order by:</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
+
+    <string name="success">Success!</string>
+    <string name="fail">Fail!</string>
+    <string name="success_message">Tag was successfully read</string>
+    <string name="fail_message">Tag was not read</string>
+    <string name="save_success">Tag successfully saved!</string>
+    <string name="save_fail">Failure: </string>
+
+    <string name="permission_granted">Permission granted</string>
+    <string name="permission_denied">Permission denied</string>
+
+    <array name="order_by">
+        <item>Дата</item>
+        <item>Название</item>
+    </array>
+</resources>

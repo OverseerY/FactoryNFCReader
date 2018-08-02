@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_history">История</string>
+    <string name="title_main">Дом</string>
+    <string name="title_location">Локация</string>
+    <string name="title_internet">Интернет</string>
+    <string name="title_server">Сервер</string>
+    <string name="title_sort_menu">Сортировка</string>
+    <string name="test">Тест</string>
+    <string name="exit">Выход</string>
+    <string name="default_text">Приложите телефон к метке, чтобы считать её</string>
+    <string name="cancel">Отмена</string>
+    <string name="begin">Начало</string>
+    <string name="end">Конец</string>
+    <string name="order_by">Сортировать по:</string>
+    <string name="ascending">По возрастанию</string>
+    <string name="descending">По убыванию</string>
+    <string name="success">Успешно!</string>
+    <string name="fail">Неудачно!</string>
+    <string name="success_message">Метка успешно считана</string>
+    <string name="fail_message">Метка не считана</string>
+    <string name="save_success">Данные метки сохранены</string>
+    <string name="save_fail">Что-то пошло не так:</string>
+    <string name="permission_granted">Разрешение получено</string>
+    <string name="permission_denied">Разрешение не получено</string>
+
+    <array name="order_by">
+        <item>Дата</item>
+        <item>Название</item>
+    </array>
+</resources>
