@@ -21,7 +21,7 @@
                 android:inputType="date"
                 android:hint="@string/begin"
                 android:focusable="false"
-                android:textColor="@color/colorIndigoPrimaryDark"
+                android:textColor="@android:color/white"
                 android:layout_weight="1"/>
 
             <EditText
@@ -31,7 +31,7 @@
                 android:inputType="date"
                 android:hint="@string/end"
                 android:focusable="false"
-                android:textColor="@color/colorIndigoPrimaryDark"
+                android:textColor="@android:color/white"
                 android:layout_weight="1"/>
 
             <TextView
@@ -57,9 +57,9 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:textColor="@color/colorIndigoPrimaryDark"
+                android:textColor="@android:color/white"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/order_by"/>
 

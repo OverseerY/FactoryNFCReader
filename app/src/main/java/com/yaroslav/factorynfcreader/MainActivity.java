@@ -41,6 +41,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.javiersantos.appupdater.AppUpdater;
+import com.github.javiersantos.appupdater.enums.Display;
+import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -145,7 +148,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppCustomTheme);
+        //setTheme(R.style.AppCustomTheme);
+        setTheme(R.style.DarkTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -211,6 +215,13 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         displayMainFragment(2, 0);
+
+        new AppUpdater(this)
+                .setUpdateFrom(UpdateFrom.GITHUB)
+                .setGitHubUserAndRepo("OverseerY", "FactoryNFCReader")
+                .setDisplay(Display.DIALOG)
+                .setCancelable(false)
+                .start();
     }
 
     @Override
@@ -221,6 +232,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (isNfcEnabled) {
             listenForNfc();
+        }
+
+        if (isGpsEnabled) {
+            initLocationProvider();
         }
 
     }
