@@ -24,9 +24,9 @@
     <string name="fail_message">Tag was not read</string>
     <string name="save_success">Tag successfully saved!</string>
     <string name="save_fail">Failure: </string>
-
     <string name="permission_granted">Permission granted</string>
     <string name="permission_denied">Permission denied</string>
+    <string name="change_theme">Change theme</string>
 
     <array name="order_by">
         <item>Дата</item>

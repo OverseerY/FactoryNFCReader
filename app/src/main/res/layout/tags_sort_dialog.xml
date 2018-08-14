@@ -21,8 +21,8 @@
                 android:inputType="date"
                 android:hint="@string/begin"
                 android:focusable="false"
-                android:textColor="@android:color/white"
                 android:layout_weight="1"/>
+            <!--android:textColor="@color/primary900"-->
 
             <EditText
                 android:id="@+id/tsdEnd"
@@ -31,8 +31,8 @@
                 android:inputType="date"
                 android:hint="@string/end"
                 android:focusable="false"
-                android:textColor="@android:color/white"
                 android:layout_weight="1"/>
+            <!--android:textColor="@color/primary900"-->
 
             <TextView
                 android:id="@+id/tsdBeginMillisec"
@@ -59,9 +59,9 @@
                 android:layout_height="30dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:textColor="@android:color/white"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="@string/order_by"/>
+            <!--android:textColor="@color/primary900"!-->
 
             <Spinner
                 android:id="@+id/tsdOrderBy"

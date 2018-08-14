@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -91,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
     /** Свойство - флаг, доступен ли GPS */
     private boolean isGpsEnabled;
 
+    private boolean isDarkTheme = false;
+
     /** Меню навигации в нижней части окна приложения */
     BottomNavigationView navigation;
 
@@ -158,11 +161,22 @@ public class MainActivity extends AppCompatActivity {
 
     //#region Activity Methods
 
+    @Override
+    public Resources.Theme getTheme() {
+        isDarkTheme = getIntent().getBooleanExtra("theme_state", false);
+        Resources.Theme theme = super.getTheme();
+        if(isDarkTheme){
+            theme.applyStyle(R.style.DarkTheme, true);
+        } else {
+            theme.applyStyle(R.style.AppTheme, true);
+        }
+        return theme;
+    }
+
     /** Метод жизненного цикла активности - вызывается при её создании */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //setTheme(R.style.AppCustomTheme);
-        setTheme(R.style.DarkTheme);
+        getTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -211,6 +225,17 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             case R.id.exit:
                 finishAffinity();
+            case R.id.switch_darkTheme:
+                if (isDarkTheme) {
+                    isDarkTheme = false;
+                } else {
+                    isDarkTheme = true;
+                }
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("theme_state", isDarkTheme);
+                startActivity(intent);
+                this.finish();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

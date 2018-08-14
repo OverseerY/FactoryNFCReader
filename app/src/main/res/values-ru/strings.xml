@@ -21,6 +21,7 @@
     <string name="save_fail">Что-то пошло не так:</string>
     <string name="permission_granted">Разрешение получено</string>
     <string name="permission_denied">Разрешение не получено</string>
+    <string name="change_theme">Поменять тему</string>
 
     <array name="order_by">
         <item>Дата</item>

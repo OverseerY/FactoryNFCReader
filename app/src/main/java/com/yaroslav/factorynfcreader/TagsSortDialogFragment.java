@@ -160,7 +160,7 @@ public class TagsSortDialogFragment extends DialogFragment{
      * в качестве аргументов полях */
     private void getDateInMilliseconds(EditText edit_field, TextView text) {
         long currentDateInMillisec = calendar.getTimeInMillis();
-        String str = (DateUtils.formatDateTime(getContext(), currentDateInMillisec,DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR ));
+        String str = (DateUtils.formatDateTime(getContext(), currentDateInMillisec,DateUtils.FORMAT_NUMERIC_DATE | DateUtils.FORMAT_SHOW_YEAR ));
         String msec = Long.toString(currentDateInMillisec);
         edit_field.setText(str);
         text.setText(msec);

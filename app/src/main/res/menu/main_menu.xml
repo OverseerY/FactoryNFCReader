@@ -3,4 +3,8 @@
     <item
         android:id="@+id/exit"
         android:title="@string/exit" />
+
+    <item
+        android:id="@+id/switch_darkTheme"
+        android:title="@string/change_theme" />
 </menu>
