@@ -37,13 +37,13 @@
                         android:contentDescription="@string/title_nfc"
                         android:src="@drawable/ic_nfc"/>
 
-                    <ImageView
+                    <!--ImageView
                         android:id="@+id/amLocationImg"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
                         android:layout_weight="1"
                         android:contentDescription="@string/title_location"
-                        android:src="@drawable/ic_location"/>
+                        android:src="@drawable/ic_location"/-->
 
                     <ImageView
                         android:id="@+id/amInternetImg"
@@ -68,14 +68,14 @@
                         android:gravity="center_horizontal"
                         android:layout_weight="1"/>
 
-                    <TextView
+                    <!--TextView
                         android:id="@+id/amLocationText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/title_location"
                         android:gravity="center_horizontal"
                         android:textSize="16sp"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1"/-->
 
                     <TextView
                         android:id="@+id/amInternetText"

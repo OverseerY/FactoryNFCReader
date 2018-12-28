@@ -20,13 +20,17 @@
 
     <string name="success">Success!</string>
     <string name="fail">Fail!</string>
+    <string name="unknown">Unknown tag</string>
     <string name="success_message">Tag was successfully read</string>
     <string name="fail_message">Tag was not read</string>
     <string name="save_success">Tag successfully saved!</string>
+    <string name="unknown_message">There is no information about this tag</string>
     <string name="save_fail">Failure: </string>
     <string name="permission_granted">Permission granted</string>
     <string name="permission_denied">Permission denied</string>
     <string name="change_theme">Change theme</string>
+    <string name="update_tags">Updating list of tags…</string>
+    <string name="update_tags_title">Preparing for work</string>
 
     <array name="order_by">
         <item>Дата</item>

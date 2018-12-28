@@ -15,6 +15,8 @@
     <string name="descending">По убыванию</string>
     <string name="success">Успешно!</string>
     <string name="fail">Неудачно!</string>
+    <string name="unknown">Неизвестная метка</string>
+    <string name="unknown_message">Отсуствует информация о метке в системе</string>
     <string name="success_message">Метка успешно считана</string>
     <string name="fail_message">Метка не считана</string>
     <string name="save_success">Данные метки сохранены</string>
@@ -22,6 +24,8 @@
     <string name="permission_granted">Разрешение получено</string>
     <string name="permission_denied">Разрешение не получено</string>
     <string name="change_theme">Поменять тему</string>
+    <string name="update_tags">Обновление списка меток…</string>
+    <string name="update_tags_title">Подготовка к работе</string>
 
     <array name="order_by">
         <item>Дата</item>

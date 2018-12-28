@@ -1,6 +1,7 @@
 package com.yaroslav.factorynfcreader;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -20,9 +21,11 @@ import android.nfc.tech.Ndef;
 import android.nfc.tech.NfcA;
 import android.nfc.tech.NfcB;
 import android.nfc.tech.NfcV;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -46,14 +49,22 @@ import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.ResponseBody;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -64,45 +75,32 @@ public class MainActivity extends AppCompatActivity {
 
     /** Ссылка на базу данных Firestore */
     FirebaseFirestore mFirestore;
-    /** Управление службами получения местоположения */
-    LocationManager locationManager;
     /** Управление службой NFC */
     NfcManager nfcManager;
     /** Адаптер NFC */
     NfcAdapter nfcAdapter;
     /** Значок для отображения изменения статуса NFC-адаптера */
     ImageView imageNfc;
-    /** Значок для отображения изменения статуса адаптера местоположения */
-    ImageView imageLocation;
     /** Значок для отображения изменения статуса подключения к интернету */
     ImageView imageInternet;
     /** Подпись значка статуса NFC */
     TextView labelNfc;
-    /** Подпись значка статуса местоположения */
-    TextView labelLocation;
     /** Подпись значка статуса подключения к интернету */
     TextView labelInternet;
 
-    /** Свойство - широта */
-    private String curLatitude;
-    /** Свойство - долгота */
-    private String curLongitude;
     /** Свойство - флаг, доступен ли NFC */
     private boolean isNfcEnabled;
-    /** Свойство - флаг, доступен ли GPS */
-    private boolean isGpsEnabled;
 
     private boolean isDarkTheme = false;
 
     /** Меню навигации в нижней части окна приложения */
     BottomNavigationView navigation;
 
-    /** Свойство - интервал обновления координат местоположения */
-    private static final int LOCATION_INTERVAL = 1000; // 1 sec
-    /** Свойство - точность определения местоположения */
-    private static final float LOCATION_DISTANCE = 1f; // 1 meter
     /** Свойство - значение для сравнения с результатом запроса разрешения на доступ к местоположению */
     private static final int PERMISSION_REQUEST_LOCATION = 0;
+
+    private Map<String, String> current_tags = new HashMap<>();
+    private Map<String, String[]> coordinates = new HashMap<>();
 
     /** Свойство - массив технологий NFC потенциальных меток */
     private final String[][] techList = new String[][] {
@@ -135,30 +133,6 @@ public class MainActivity extends AppCompatActivity {
 
     //#endregion
 
-    //#region Get / Set
-
-    /** Метод - установка значения свойства Широта */
-    public void setCurLatitude(String curLatitude) {
-        this.curLatitude = curLatitude;
-    }
-
-    /** Метод - установка значения свойства Долгота*/
-    public void setCurLongitude(String curLongitude) {
-        this.curLongitude = curLongitude;
-    }
-
-    /** Метод - получение значения свойства Широта*/
-    public String getCurLatitude() {
-        return curLatitude;
-    }
-
-    /** Метод - получение значения свойства Долгота*/
-    public String getCurLongitude() {
-        return curLongitude;
-    }
-
-    //#endregion
-
     //#region Activity Methods
 
     @Override
@@ -186,25 +160,19 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         imageNfc = findViewById(R.id.amNfcImg);
-        imageLocation = findViewById(R.id.amLocationImg);
         imageInternet = findViewById(R.id.amInternetImg);
 
         labelNfc = findViewById(R.id.amNfcText);
-        labelLocation = findViewById(R.id.amLocationText);
         labelInternet = findViewById(R.id.amInternetText);
 
         testNfcState();
-        testGpsState();
         testInternetState();
 
         delayBeforeInitState();
+        new UpdateListOfTags().execute();
 
         if (isNfcEnabled) {
             listenForNfc();
-        }
-
-        if (isGpsEnabled) {
-            initLocationProvider();
         }
     }
 
@@ -276,11 +244,6 @@ public class MainActivity extends AppCompatActivity {
         if (isNfcEnabled) {
             listenForNfc();
         }
-
-        if (isGpsEnabled) {
-            initLocationProvider();
-        }
-
     }
 
     /** Запрос разрешения на доступ к местоположению */
@@ -316,85 +279,6 @@ public class MainActivity extends AppCompatActivity {
         return service_enabled;
     }
 
-    /** инициализация службы местоположения - возвращает логическое значение состояния подключения GPS-провайдера */
-    private boolean initGPS() {
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        boolean service_enabled = false;
-        try {
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                service_enabled = true;
-            }
-        } catch (NullPointerException e) {
-            Log.e("initLocationManager", e.getLocalizedMessage());
-        }
-        return service_enabled;
-    }
-
-    /** Слушатель изменения местоположения */
-    LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            setCurLatitude(location.convert(location.getLatitude(), location.FORMAT_DEGREES));
-            setCurLongitude(location.convert(location.getLongitude(), location.FORMAT_DEGREES));
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-    };
-
-    /** инициализация службы определения местоположения с запросом разрешения на доступ, если требуется */
-    private void initLocationProvider() {
-        Log.i("INITLP", "initializeLocationProvider");
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            try {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener);
-            } catch (java.lang.SecurityException ex) {
-                Log.e("INITLP", "Fail to request location update, ignore:", ex);
-            } catch (IllegalArgumentException ex) {
-                Log.e("INITLP", "Network provider does not exist: " + ex.getMessage());
-            } catch (NullPointerException ex) {
-                Log.e("INITLP", "Fuck you, NETWORK PROVIDER: " + ex.getMessage());
-            }
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE, locationListener);
-            } catch (java.lang.SecurityException ex) {
-                Log.e("INITLP", "Fail to request location update, ignore: ", ex);
-            } catch (IllegalArgumentException ex) {
-                Log.e("INITLP", "Gps provider does not exist: " + ex.getMessage());
-            } catch (NullPointerException ex) {
-                Log.e("INITLP", "Fuck you, GPS PROVIDER: " + ex.getMessage());
-            }
-        } else {
-            requestLocationPermissions();
-        }
-    }
-
-    /** Запрос разрешения на доступ к местоположению устройства у пользователя */
-    private void requestLocationPermissions() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-            Snackbar.make(findViewById(android.R.id.content), "Permission granted", Snackbar.LENGTH_INDEFINITE).setAction("Ok", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
-                }
-            }).show();
-        } else {
-            Snackbar.make(findViewById(android.R.id.content), "Permission denied", Snackbar.LENGTH_SHORT).show();
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_LOCATION);
-        }
-    }
-
     //#endregion
 
     //#region Check State
@@ -423,32 +307,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }, 0L, 5L * 1000);
-    }
-
-    /** Метод - проверка состояния подключения GPS-адаптера с определённым интервалом */
-    public void testGpsState() {
-        Timer gpsTimer = new Timer();
-        final Handler gpsHandler = new Handler();
-        gpsTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                final int textColor;
-                if (initGPS()) {
-                    textColor = getResources().getColor(R.color.colorGreen);
-                    isGpsEnabled = true;
-                } else {
-                    textColor = getResources().getColor(R.color.colorRed);
-                    isGpsEnabled = false;
-                }
-                gpsHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        labelLocation.setTextColor(textColor);
-                        imageLocation.setColorFilter(textColor);
-                    }
-                });
-            }
-        }, 0L, 2L * 1000);
     }
 
     /** Метод - проверка состояния подключения к сети интернет с определённым интервалом */
@@ -544,8 +402,12 @@ public class MainActivity extends AppCompatActivity {
         }
         //Check if tag name is not empty
         if (!tag_data.equals("") && !tag_id.equals("")) {
-            createNewTicket(tag_id, tag_data, getCurLatitude(), getCurLongitude(), getCurTime());
-            autoCloseDialog(getString(R.string.success), tag_data + "\n" + getString(R.string.success_message), 1);
+            if (checkTag(tag_id, tag_data)) {
+                createNewTicket(tag_id, tag_data, getLatitude(tag_id), getLongitude(tag_id), getCurTime());
+                autoCloseDialog(getString(R.string.success), tag_data + "\n" + getString(R.string.success_message), 1);
+            } else {
+                autoCloseDialog(getString(R.string.unknown), getString(R.string.unknown_message), 3);
+            }
         } else {
             autoCloseDialog(getString(R.string.fail), getString(R.string.fail_message), 2);
         }
@@ -564,6 +426,37 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("listenForNfc", e.getLocalizedMessage());
         }
+    }
+
+    private boolean checkTag(String id, String value) {
+        if (!current_tags.isEmpty()) {
+            return current_tags.containsKey(id) && current_tags.containsValue(value);
+        }
+        return false;
+    }
+
+    private String getLatitude(String tagId) {
+        if (!coordinates.isEmpty() && coordinates.containsKey(tagId)) {
+            for (Map.Entry entry : coordinates.entrySet()) {
+                if (entry.getKey().equals(tagId)) {
+                    String[] arr = (String[]) entry.getValue();
+                    return arr[0];
+                }
+            }
+        }
+        return "";
+    }
+
+    private String getLongitude(String tagId) {
+        if (!coordinates.isEmpty() && coordinates.containsKey(tagId)) {
+            for (Map.Entry entry : coordinates.entrySet()) {
+                if (entry.getKey().equals(tagId)) {
+                    String[] arr = (String[]) entry.getValue();
+                    return arr[1];
+                }
+            }
+        }
+        return "";
     }
 
     /** Метод - обработка данных, считанных с метки; получение уникального идентификатора метки */
@@ -625,6 +518,9 @@ public class MainActivity extends AppCompatActivity {
             case 2:
                 builder.setIcon(R.drawable.ic_alert);
                 break;
+            case 3:
+                builder.setIcon(R.drawable.ic_warning);
+                break;
         }
         builder.setCancelable(true);
 
@@ -675,6 +571,76 @@ public class MainActivity extends AppCompatActivity {
     //#endregion
 
     //#endregion
+
+    /** Get coordinates of tags */
+    private void getCoordinatesOfTags() {
+        Query queryRef = mFirestore.collection("coordinates");
+
+        ListenerRegistration firestoreListener = queryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.save_fail) + "\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("CURRENT_TAGS", e.getMessage());
+                    return;
+                }
+
+                for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                    String[] lat_lon = new String[2];
+                    lat_lon[0] = doc.getString("lat");
+                    lat_lon[1] = doc.getString("lon");
+                    coordinates.put(doc.getString("tag_id"),lat_lon);
+                }
+            }
+        });
+    }
+
+    /** Get list of existing tags (factory ID and given name) */
+    private void getTags() {
+        Query queryRef = mFirestore.collection("tags");
+
+        ListenerRegistration firestoreListener = queryRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.save_fail) + "\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("CURRENT_TAGS", e.getMessage());
+                    return;
+                }
+
+                for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                    current_tags.put(doc.getString("tag_id"),doc.getString("tag_name"));
+                }
+            }
+        });
+    }
+
+    private class UpdateListOfTags extends AsyncTask<Void, Void, Void> {
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(MainActivity.this);
+            progressDialog.setMessage(getString(R.string.update_tags_title) + "\n" + getString(R.string.update_tags));
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (progressDialog.isShowing()) progressDialog.dismiss();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            getTags();
+            getCoordinatesOfTags();
+
+            return null;
+        }
+    }
 }
 
 
